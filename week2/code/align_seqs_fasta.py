@@ -1,119 +1,169 @@
-#!/usr/bin/env ipython3
+#!/usr/bin/env python3
 
-"""This script is used to align two DNA sequences from a fasta file, in the
-best possible way. It uses inputs from the data directory
-and outputs a text file in the results directory."""
+"""
+This script takes 2 FASTA files and calculates scores between best matches.
+Alignments with the best scores wins. An output file is created and saved
+in results folder with the selected alignment and its respective score!!!
 
-__appname__ = 'align_seqs_fasta.py'
-__author__ = 'Amy Feakes (amf222@ic.ac.uk)'
-__version__ = '0.0.1'
+NOTE: FASTA files should be provided or default values will be used!!!
+"""
 
-###IMPORTS###
+__appname__ = ['Align FASTA sequences']
+__author__ = 'Vitor Ferreira (f.ferreira22@imperial.ac.uk)'
+
+
+# Imports
 import csv
-import sys #reads in files from the user
-#import os
-###FUNCTIONS###
+import sys
 
-#######################
-#this function reads in the fasta from the data directory
-#strips the additional line from the file
-#returns two objects - seqa and seqb
+# create empty strings to store values
+seq1 = ""
+seq2 = ""
 
-def read_fasta(fx):
-    """This opens the fasta file and strips it to just the sequence."""
-    with open(fx, 'r') as file:
-        fasta = ""
-        line = 0 #looking at the first line
-        for row in file:
-            if line != 0:
-                fasta += row.replace("\n","") #empyting line and replacing it
-            line += 1
-    return fasta #returing the stripped sequence
+if len(sys.argv) == 3:
 
-##########################
-#this function computes the score of the alignment
-#using a for loop and the length of the sequences
+    # Read CSV files containing sequences
+    with open(str(sys.argv[1]), 'r') as f1:
+
+        f1 = f1.readlines()[1:]
+        for line in f1:
+            line = line.strip(r"\n")
+            seq1 = seq1 + line
+
+    with open(str(sys.argv[2]), 'r') as f2:
+
+        f2 = f2.readlines()[1:]
+        for line in f2:
+            line = line.strip(r"\n")
+            seq2 = seq2 + line
+
+elif len(sys.argv) == 2:
+
+    # Read CSV files containing sequences
+    with open(str(sys.argv[1]), 'r') as f1:
+
+        f1 = f1.readlines()[1:]
+        for line in f1:
+            line = line.strip(r"\n")
+            seq1 = seq1 + line
+
+    print("You only provide one FASTA file!!!")
+    choice = input("Would you like to provide another sequence? y/n?")
+
+    if choice == "y":
+        dir_f2 = input("Please enter the file to sequence: ")
+
+        with open(str(dir_f2), 'r') as f2:
+
+            f2 = f2.readlines()[1:]
+            for line in f2:
+                line = line.strip(r"\n")
+                seq2 = seq2 + line
+
+    else:
+        print("The default FASTA file will be provided "
+              "to calculate sequencing score")
+
+        with open("../data/fasta/407228412.fasta", 'r') as f2:
+
+            f2 = f2.readlines()[1:]
+            for line in f2:
+                line = line.strip(r"\n")
+                seq2 = seq2 + line
+
+else:
+    print("No FASTA files were provided!!! Defaults will be used!!!")
+
+    # Read CSV files containing sequences
+    with open("../data/fasta/407228326.fasta", 'r') as f1:
+
+        f1 = f1.readlines()[1:]
+        for line in f1:
+            line = line.strip(r"\n")
+            seq1 = seq1 + line
+
+    with open("../data/fasta/407228412.fasta", 'r') as f2:
+
+        f2 = f2.readlines()[1:]
+        for line in f2:
+            line = line.strip(r"\n")
+            seq2 = seq2 + line
+
+
+print("Looking for best alignment...")
+print(".")
+print(".")
+print(".")
+
+# Assign the longer sequence s1, and the shorter to s2
+# l1 is length of the longest, l2 that of the shortest
+
+l1 = len(seq1)
+l2 = len(seq2)
+if l1 >= l2:
+    s1 = seq1
+    s2 = seq2
+else:
+    s1 = seq2
+    s2 = seq1
+    l1, l2 = l2, l1  # swap the two lengths
+
+
+# A function that computes a score by returning the number of matches starting
+# from arbitrary startpoint (chosen by user)
 def calculate_score(s1, s2, l1, l2, startpoint):
-    """This computes the score."""
-    matched = "" # to hold string displaying alignements
+    """
+    Computes a score by returning the number of matches starting
+    from arbitrary startpoint (chosen by user)
+    """
+    matched = ""  # to hold string displaying alignments
     score = 0
     for i in range(l2):
         if (i + startpoint) < l1:
-            if s1[i + startpoint] == s2[i]: # if the bases match
+            if s1[i + startpoint] == s2[i]:  # if the bases match
                 matched = matched + "*"
                 score = score + 1
             else:
                 matched = matched + "-"
+
     # some formatted output
-    #print("." * startpoint + matched)
-    #print("." * startpoint + s2)
-    #print(s1)
-    #print(score)
-    #print(" ")
+    # print("." * startpoint + matched)
+    # print("." * startpoint + s2)
+    # print(s1)
+    # print(score)
+    # print(" ")
 
     return score
-#############################
-#this function takes the inputted sequences, calaculates their length
-#it requires the first seqeneces to be longer than the second - if this is not already the case this will swap the sequences around
-def assign(foo1: object, foo2: object) -> object:
-    """"This function assiengs the longer sequence to seq1 and the shorter to seq2."""
-    #os.rename(seq1, s1)
-    #os.rename(seq2, s2)
-    l1 = len(foo1)
-    l2 = len(foo2)
-    if l1 < l2:  # if l1 is less than l2, swap them around
-        foo1, foo2 = foo2, foo1  # swap the two seqeuns
-        l1, l2 = l2, l1  # swap the two lengths
-    #print(foo1)
-# now try to find the best match (highest score) for the two sequences
-    return foo1, foo2, l1, l2
 
-##############################
-#this function calculates the best score and best alignment
-#this function uses calculate_score function (already defined)
-#uses a for loop with a range of the length of seq1
-def calculate_best(s1, s2, l1, l2):
-    """This finds the best match for the fasta sequences."""
-    best_a = None
-    best_s = -1
-    for i in range(l1): # Note that you just take the last alignment with the highest score
-        z = calculate_score(s1, s2, l1, l2, i)
-        if z > best_s:
-            best_a = "." * i + s2 # think about what this is doing!
-            best_s = z
-    return best_a, best_s
-    #
-    #return best_a, best_s
-#print(best_a)
-#print(s1)
-#print("Best score:", best_s)
-
-# Test the function with some example starting points: just to understnad, will not be in final script
+# Test the function with some example starting points:
 # calculate_score(s1, s2, l1, l2, 0)
 # calculate_score(s1, s2, l1, l2, 1)
 # calculate_score(s1, s2, l1, l2, 5)
 
-###STANDARD FUNCTIONS###
-def main(argv):
-    """Read in the data from fasta files, find the best algiment and save the results."""
-    if len(sys.argv) <= 2:
-        print("Not enough arugments were inputted, script will be run with the default sequences")
-    #input the defult sequences
-        fasta1=read_fasta("../data/407228326.fasta")
-        fasta2=read_fasta("../data/407228412.fasta")
-    else: #when arguements inputted
-        print("Reading inputted files")
-        fasta1 = read_fasta(argv[1])
-        fasta2 = read_fasta(argv[2])
-    #assigning seq
-    s1, s2, l1, l2 = assign(fasta1, fasta2)
-    #calculations
-    best_a, best_s = calculate_best(s1, s2, l1, l2)
-    #output
-    output = open('../results/align_seqs_results_with_fasta.txt', 'w')
-    output.write ("Best alignmment: " + str(best_a) + "\n" + "Best score: " + str(best_s) + "\n")
-    return 0
 
-if __name__ == "__main__":
-    status = main(sys.argv)
-    sys.exit(status)
+# now try to find the best match (highest score) for the two sequences
+my_best_align = None
+my_best_score = -1
+
+
+for i in range(l1):  # Note that you just take the last alignment
+    #                  with the highest score
+
+    z = calculate_score(s1, s2, l1, l2, i)
+    if z > my_best_score:
+        my_best_align = "." * i + s2  # think about what this is doing!
+        my_best_score = z
+# print(my_best_align)
+# print(s1)
+# print("Best score:", my_best_score)
+
+# Writing align and results to output file
+with open('../results/align_seqs_fasta_output.csv', 'w') as o:
+
+    csvwrite = csv.writer(o)
+    csvwrite.writerow([f"The best alignment is: {my_best_align}"])
+    csvwrite.writerow([f"The score of best alignment is: {my_best_score}"])
+
+print("Done!!!")
+print("Best alignment scored!")
+print("Output file can be found in results folder!!!")
