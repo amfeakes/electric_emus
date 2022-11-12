@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-"""Practice on using system variables and control flow tools."""
+"""Practice on control flow tools."""
 
 _appname_ = 'DNA alignment for fasta files'
 _author_ = 'Dongxuan Zhu (dongxuan.zhu22@imperial.ac.uk)'
-_version_ = '0.0.1'
+_version_ = '0.0.2'
 _license_ = "N/A"
 
 ## imports ##
@@ -12,6 +12,7 @@ _license_ = "N/A"
 
 import csv
 import sys
+import numpy as np
 
 default_seq1 = "../data/407228326.fasta"
 default_seq2 = "../data/407228412.fasta"
@@ -93,15 +94,22 @@ for i in range(l1): # Note that you just take the last alignment with the highes
     if z > my_best_score:
         my_best_align = "." * i + s2 #It shows till what starting point starts the best alignment.
         my_best_score = z 
+    elif z == my_best_score:
+        my_best_align = np.append(my_best_align,("."*i + s2))
 
-print("Best alignment: ", my_best_align)
-print("Best score: ", my_best_score)
+# print("Best alignment: ", my_best_align)
+# print("Best score: ", my_best_score)
 
-#preview the output
-align_seqs_output = ["Best alignment: " + str(my_best_align), \
-"Best score: " + str(my_best_score)]
+## output ##
+if len(my_best_align[1]) > 1: #if there are more than one equally best alignment, the output will be separated with \n
+    align_seqs_output = ["Best alignment: ", '\n'.join(my_best_align), \
+    "Best score: " + str(my_best_score)]
+else:                         #if there's only one best alignment, print out as it is.
+    align_seqs_output = ["Best alignment: ", my_best_align, \
+    "Best score: " + str(my_best_score)]
 
-out_file = "../results/align_seqs_output.txt"
+
+out_file = "../results/align_seqs_better_output.txt"
 with open(out_file,'w') as g:
     
     for i in align_seqs_output:
