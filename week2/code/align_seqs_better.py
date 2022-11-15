@@ -10,62 +10,9 @@ __version__ = '0.0.1'
 ###IMPORTS###
 import pickle #used to keep track of objects
 import sys #reads in files from the user
-#import os
+from align_seqs_fasta import read_fasta, calculate_score, assign
+
 ###FUNCTIONS###
-
-#######################
-#this function reads in the fasta from the data directory
-#strips the additional line from the file
-#returns two objects - seqa and seqb
-
-def read_fasta(fx):
-    """This opens the fasta file and strips it to just the sequence."""
-    with open(fx, 'r') as file:
-        fasta = ""
-        line = 0 #looking at the first line
-        for row in file:
-            if line != 0:
-                fasta += row.replace("\n","") #empyting line and replacing it
-            line += 1
-    return fasta #returing the stripped sequence
-
-##########################
-#this function computes the score of the alignment
-#using a for loop and the length of the sequences
-def calculate_score(s1, s2, l1, l2, startpoint):
-    """This computes the score."""
-    matched = "" # to hold string displaying alignements
-    score = 0
-    for i in range(l2):
-        if (i + startpoint) < l1:
-            if s1[i + startpoint] == s2[i]: # if the bases match
-                matched = matched + "*"
-                score = score + 1
-            else:
-                matched = matched + "-"
-    # some formatted output
-    #print("." * startpoint + matched)
-    #print("." * startpoint + s2)
-    #print(s1)
-    #print(score)
-    #print(" ")
-
-    return score
-#############################
-#this function takes the inputted sequences, calaculates their length
-#it requires the first seqeneces to be longer than the second - if this is not already the case this will swap the sequences around
-def assign(foo1: object, foo2: object) -> object:
-    """"This function assiengs the longer sequence to seq1 and the shorter to seq2."""
-    #os.rename(seq1, s1)
-    #os.rename(seq2, s2)
-    l1 = len(foo1)
-    l2 = len(foo2)
-    if l1 < l2:  # if l1 is less than l2, swap them around
-        foo1, foo2 = foo2, foo1  # swap the two seqeuns
-        l1, l2 = l2, l1  # swap the two lengths
-    #print(foo1)
-# now try to find the best match (highest score) for the two sequences
-    return foo1, foo2, l1, l2
 
 ##############################
 #this function calculates the best score and best alignment
@@ -94,15 +41,6 @@ def calculate_best(s1, s2, l1, l2):
             value = len(best_all.keys())
             best_all["Align " + str(value + 1)]=[best_s, best_a]
     return best_all, best_s
-
-#print(best_a)
-#print(s1)
-#print("Best score:", best_s)
-
-# Test the function with some example starting points: just to understnad, will not be in final script
-# calculate_score(s1, s2, l1, l2, 0)
-# calculate_score(s1, s2, l1, l2, 1)
-# calculate_score(s1, s2, l1, l2, 5)
 
 ###STANDARD FUNCTIONS###
 def main(argv):
