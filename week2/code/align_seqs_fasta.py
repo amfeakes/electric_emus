@@ -5,7 +5,7 @@ best possible way. It uses inputs from the data directory
 and outputs a text file in the results directory."""
 
 __appname__ = 'align_seqs_fasta.py'
-__author__ = 'Amy Feakes (amf222@ic.ac.uk)'
+__author__ = 'electric_emus'
 __version__ = '0.0.1'
 
 ###IMPORTS###
