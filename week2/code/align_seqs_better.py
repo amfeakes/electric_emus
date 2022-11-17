@@ -1,140 +1,124 @@
-#!/usr/bin/env ipython3
+#!/usr/bin/env python3
 
-"""This script is used to find the best (and equally) best alignments for sequences. It uses inputs from the data directory, fasta files,
-and outputs a text file in the results directory."""
+"""Practice on control flow tools."""
 
-__appname__ = 'align_seqs_better.py'
-__author__ = 'Amy Feakes (amf222@ic.ac.uk)'
-__version__ = '0.0.1'
+_appname_ = 'DNA alignment for fasta files'
+_author_ = 'Dongxuan Zhu (dongxuan.zhu22@imperial.ac.uk)'
+_version_ = '0.0.2'
+_license_ = "N/A"
 
-###IMPORTS###
-import pickle #used to keep track of objects
-import sys #reads in files from the user
-#import os
-###FUNCTIONS###
+## imports ##
+# Import DNA sequence from external files
 
-#######################
-#this function reads in the fasta from the data directory
-#strips the additional line from the file
-#returns two objects - seqa and seqb
+import csv
+import sys
+import numpy as np
 
-def read_fasta(fx):
-    """This opens the fasta file and strips it to just the sequence."""
-    with open(fx, 'r') as file:
-        fasta = ""
-        line = 0 #looking at the first line
-        for row in file:
-            if line != 0:
-                fasta += row.replace("\n","") #empyting line and replacing it
-            line += 1
-    return fasta #returing the stripped sequence
+default_seq1 = "../data/407228326.fasta"
+default_seq2 = "../data/407228412.fasta"
+seq1 = ""
+seq2 = ""
 
-##########################
-#this function computes the score of the alignment
-#using a for loop and the length of the sequences
+if len(sys.argv) <= 2:
+    input_seq1 = default_seq1
+    input_seq2 = default_seq2
+    print("Input source directory not specified, using default file:\n" + \
+     str(default_seq1)+" and " + str(default_seq2))
+else:
+    input_seq1 = sys.argv[1]
+    input_seq2 = sys.argv[2]
+
+with open(input_seq1,'r') as f1:
+    next(f1)
+    for line in f1:
+        seq1 = seq1 + str(line)
+with open(input_seq2,'r') as f2:
+    next(f2)
+    for line in f2:
+        seq2 = seq2 + str(line)
+
+
+## preprocession ##
+# Assign the longer sequence s1, and the shorter to s2
+# l1 is length of the longest, l2 that of the shortest
+
+# Retrieve length of sequences
+l1 = len(seq1)
+l2 = len(seq2)
+
+if l1 >= l2:
+    s1 = seq1
+    s2 = seq2
+else:
+    s1 = seq2
+    s2 = seq1
+    l1, l2 = l2, l1 # swap the two lengths
+
+## functions ##
+# A function that computes a score by returning the number of matches starting
+# from arbitrary startpoint (chosen by user)
 def calculate_score(s1, s2, l1, l2, startpoint):
-    """This computes the score."""
+
+    """Find best alignment score by counting how many DNA sequences match after the starting point."""
     matched = "" # to hold string displaying alignements
     score = 0
     for i in range(l2):
-        if (i + startpoint) < l1:
+        if (i + startpoint) < l1: #why not l2: the aim is to move s1 and get the most fit-in section.
             if s1[i + startpoint] == s2[i]: # if the bases match
                 matched = matched + "*"
                 score = score + 1
             else:
                 matched = matched + "-"
+
     # some formatted output
-    #print("." * startpoint + matched)
-    #print("." * startpoint + s2)
-    #print(s1)
-    #print(score)
-    #print(" ")
+    # print("." * startpoint + matched)           
+    # print("." * startpoint + s2)
+    # print(s1)
+    # print(score) 
+    # print(" ")
 
     return score
-#############################
-#this function takes the inputted sequences, calaculates their length
-#it requires the first seqeneces to be longer than the second - if this is not already the case this will swap the sequences around
-def assign(foo1: object, foo2: object) -> object:
-    """"This function assiengs the longer sequence to seq1 and the shorter to seq2."""
-    #os.rename(seq1, s1)
-    #os.rename(seq2, s2)
-    l1 = len(foo1)
-    l2 = len(foo2)
-    if l1 < l2:  # if l1 is less than l2, swap them around
-        foo1, foo2 = foo2, foo1  # swap the two seqeuns
-        l1, l2 = l2, l1  # swap the two lengths
-    #print(foo1)
-# now try to find the best match (highest score) for the two sequences
-    return foo1, foo2, l1, l2
 
-##############################
-#this function calculates the best score and best alignment
-#this function uses calculate_score function (already defined)
-#uses a for loop with a range of the length of seq1
-def calculate_best(s1, s2, l1, l2):
-    """This finds the best match for the fasta sequences."""
-    best_a = None
-    best_s = -1
-    best_all = {} #creating dic for all best alignments
-
-#the dictionary uses key and value pairs
-    for i in range(l1): # Note that you just take the last alignment with the highest score
-        z = calculate_score(s1, s2, l1, l2, i)
-
-        if z > best_s: #clearing matches cuase found new best score
-            best_all = {}
-
-            best_a = "." * i + s2 # think about what this is doing!
-            best_s = z
-
-            best_all["Align " + str(1)]=[best_s, best_a]
-
-        elif z == best_s:
-            best_a = "." * i + s2  # think about what this is doing!
-            value = len(best_all.keys())
-            best_all["Align " + str(value + 1)]=[best_s, best_a]
-    return best_all, best_s
-
-#print(best_a)
-#print(s1)
-#print("Best score:", best_s)
-
-# Test the function with some example starting points: just to understnad, will not be in final script
+# Test the function with some example starting points:
 # calculate_score(s1, s2, l1, l2, 0)
 # calculate_score(s1, s2, l1, l2, 1)
 # calculate_score(s1, s2, l1, l2, 5)
 
-###STANDARD FUNCTIONS###
-def main(argv):
-    """Read in the data from fasta files, find the best algiment and save the results."""
-    if len(sys.argv) <= 2:
-        print("Not enough arugments were inputted, script will be run with the default sequences")
-    #input the defult sequences
-        fasta1=read_fasta("../data/407228326.fasta")
-        fasta2=read_fasta("../data/407228412.fasta")
-    else: #when arguements inputted
-        print("Reading inputted files")
-        fasta1 = read_fasta(argv[1])
-        fasta2 = read_fasta(argv[2])
-    #assigning seq
-    s1, s2, l1, l2 = assign(fasta1, fasta2)
-    #calculations
-    best_all, best_s = calculate_best(s1, s2, l1, l2)
+# now try to find the best match (highest score) for the two sequences
+my_best_align = None
+my_best_score = -1
 
-    print("Outputting best scores and alignments below.")
-    for key, value in best_all.items():
-        print(key, ": ", value[0], ", ", value[1], sep="")
-    print
-    #dump the dictionary of best_all into a file
-    pickle_out = open("../data/align_seqs_better.pickle", "wb")
-    pickle.dump(best_s, pickle_out)
-    pickle_out.close()
-    #output
-    with open('../results/align_seqs_better_results.txt', 'w') as x:
-        for key, value in best_all.items():
-            x.write("Best alignmment: " + value[1] + "\n" + "Best score: " + str(value[0]) + "\n")
-    return 0
+for i in range(l1): # Note that you just take the last alignment with the highest score
 
-if __name__ == "__main__":
-    status = main(sys.argv)
-    sys.exit(status)
+    z = calculate_score(s1, s2, l1, l2, i)
+    if z > my_best_score:
+        my_best_align = "." * i + s2 #It shows till what starting point starts the best alignment.
+        my_best_score = z 
+    elif z == my_best_score:
+        my_best_align = np.append(my_best_align,("."*i + s2))
+
+# print("Best alignment: ", my_best_align)
+# print("Best score: ", my_best_score)
+
+## output ##
+if len(my_best_align[1]) > 1: #if there are more than one equally best alignment, the output will be separated with \n
+    align_seqs_output = ["Best alignment: ", '\n'.join(my_best_align), \
+    "Best score: " + str(my_best_score)]
+else:                         #if there's only one best alignment, print out as it is.
+    align_seqs_output = ["Best alignment: ", my_best_align, \
+    "Best score: " + str(my_best_score)]
+
+
+out_file = "../results/align_seqs_better_output.txt"
+with open(out_file,'w') as g:
+    
+    for i in align_seqs_output:
+        g.write(i + "\n")
+
+    print("Done! Best alignment stored as: " + str(out_file))
+
+
+
+
+    
+
