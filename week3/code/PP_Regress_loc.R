@@ -4,10 +4,6 @@
 ## imports ##
 rm(list=ls())
 
-# require(tidyverse)
-# tidyverse_packages(include_self = TRUE)
-
-
 MyDF <- read.csv("../data/EcolArchives-E089-51-D1.csv")
 
 ## functions ##
@@ -33,13 +29,6 @@ reg <- function(SubData,k){
 
     return(M)
 }
-
-
-# test <- function() {
-#     return( matrix(NA,8,1))
-# }
-
-# M <- t(sapply(1:25, function(i) test()))
 
 
 
