@@ -1,0 +1,29 @@
+##for files which we dont want to track - we ignore 
+##with git ignore there is the option to whitelist or blacklist 
+# can do via black listing, or whitelisting 
+## whitelisting - ignore every file, then explicitly include the ones you want 
+*~ 
+# ignore every file 
+*.*
+#now through ! execption, include file types wanted 
+!.gitignore
+!*.R
+!*.py
+!*.sh
+!*.tex
+!*.bib
+!*.md
+!*.txt
+!*.csv
+
+
+#week2 edits 
+!week2/data/*.fasta
+
+#week3 edits 
+
+
+
+
+##always exculded 
+.DS_Store
