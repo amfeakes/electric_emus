@@ -8,40 +8,47 @@
 
 
 #run the R script
-file =../results/trees_treeheights.csv
+TREEFILE='../data/trees.csv'
+
 if [ $# -eq 1 ] ; then
   Rscript get_TreeHeight.R $1
-  if [ -f "$file"]; then
-    echo "R script -- using file $1 and output file $file"
+  Routput=../results/trees_TreeHeights.csv
+  if [ -f "$Routput" ]; then
+    echo "R script -- using file $1 and output file $Routput"
   else
     echo "R script can not run sucessfully"
     exit 1
   fi
   
 else
-  Rscript get_TreeHeight.R ../data/trees.csv
-  if [ -f "$file"]; then
-    echo "R script -- using file trees.csv and output file $file"
+  Rscript get_TreeHeight.R $TREEFILE
+  Routput=../results/trees_TreeHeights.csv
+  if [ -f "$Routput" ]; then
+    echo "R script -- using file trees.csv and output file $Routput"
   else
     echo "R script can not run sucessfully"
     exit 1
   fi
 fi
 
+
+
 #run the python script
 if [ $# -eq 1 ] ; then
   python3 get_TreeHeight.py $1
-  if [ -f "$file"]; then
-    echo "python3 -- using file $1 and output file $file"
+  Poutput=../results/trees_TreeHeights_py.csv
+  if [ -f "$Poutput" ]; then
+    echo "python3 -- using file $1 and output file $Poutput"
   else
     echo "python3 can not run sucessfully"
     exit 1
   fi
   
 else
-  python3 get_TreeHeight.R ../data/trees.csv
-  if [ -f "$file"]; then
-    echo "python3 -- using file trees.csv and output file $file"
+  python3 get_TreeHeight.py ${TREEFILE}
+  Poutput=../results/trees_TreeHeights_py.csv
+  if [ -f "$Poutput" ]; then
+    echo "python3 -- using file trees.csv and output file $Poutput"
   else
     echo "python3 can not run sucessfully"
     exit 1
