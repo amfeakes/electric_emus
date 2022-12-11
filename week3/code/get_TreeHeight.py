@@ -10,7 +10,7 @@ _license_ = "N/A"
 
 #### imports ####
 import sys
-from math import pi, tan
+import numpy as np
 import pandas as pd
 from pathlib import Path
 
@@ -32,11 +32,13 @@ def main(argv):
         tree_dis = tree_data["Distance.m"].astype(float)
         tree_data["Height.m"] = [treeheight(deg,dis) for deg,dis in zip(tree_deg,tree_dis)]
         #export
-        filename_output = "../results/"+Path(filename).stem + ".csv"
+        filename_output = "../results/"+Path(filename).stem +"_treeheights" ".csv"
         tree_data.to_csv(filename_output,index=False)
         print("Tree height data saved as "+filename_output)
     else:
         print("Please specify one csv file with tree measurement data (degrees,distance).")
+    
+
 
     
 #### execution ####
