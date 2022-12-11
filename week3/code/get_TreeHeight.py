@@ -21,7 +21,7 @@ def treeheight(degrees, distance):
     and distance from the base from the tree. Returns with the same unit as distance."""
     radians = degrees * pi / 180
     height = distance * tan(radians)
-    return(height)
+    return height
 
 def main(argv):
     """Parse filename and execute tree height calculation."""
@@ -32,7 +32,7 @@ def main(argv):
         tree_dis = tree_data["Distance.m"].astype(float)
         tree_data["Height.m"] = [treeheight(deg,dis) for deg,dis in zip(tree_deg,tree_dis)]
         #export
-        filename_output = "../results/"+Path(filename).stem +"_treeheights" ".csv"
+        filename_output = f"../results/{Path(filename).stem}_treeheights.csv"
         tree_data.to_csv(filename_output,index=False)
         print("Tree height data saved as "+filename_output)
     else:
